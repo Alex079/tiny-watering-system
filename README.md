@@ -7,10 +7,10 @@ The components are
 - [Control board](https://easyeda.com/Alex079/watsy-v2 "Schematic and PCB")
 - 3V-6V powered DC motor water pump with flyback diode
 - 3V-5V powered capacitive soil moisture sensor with 3V output
-- normally open momentary switch (SPST NO)
+- Normally open momentary switch (SPST NO)
 - ~3V coin cell battery (CR2032)
 - ~4.5V battery (3xAA)
-- enclosure
+- Enclosure
 
 # How it works #
 
