@@ -26,7 +26,21 @@ volatile bool calibrationRequired; // calibration indicator
 
 #define PROBE_TIMES    1
 #define PUMP_TIMES     1
-#define IDLE_TIMES     2
+#define IDLE_TIMES     8
+
+/*
+ * timeout values
+ * 0 -> 16 ms
+ * 1 -> 32 ms
+ * 2 -> 64 ms
+ * 3 -> 0.125 s
+ * 4 -> 0.25 s
+ * 5 -> 0.5 s
+ * 6 -> 1.0 s
+ * 7 -> 2.0 s
+ * 8 -> 4.0 s
+ * 9 -> 8.0 s
+*/
 
 #define SHORT_TIMEOUT  4
 #define MID_TIMEOUT    7
@@ -43,8 +57,8 @@ volatile bool calibrationRequired; // calibration indicator
 #define adcSetup()     ADMUX = 0b10110110; LOW_POWER
 // ADMUX = (1<<REFS1)|(0<<REFS0)|(1<<ADLAR)|(1<<REFS2)|(0<<MUX3)|(1<<MUX2)|(1<<MUX1)|(0<<MUX0)
 
-#define adcOn()        ADC_POWER; ADCSRA = 0b11101000
-// ADCSRA = (1<<ADEN)|(1<<ADSC)|(1<<ADATE)|(0<<ADIF)|(1<<ADIE)|(0<<ADPS2)|(0<<ADPS1)|(0<<ADPS0)
+#define adcOn()        ADC_POWER; ADCSRA = 0b11101100
+// ADCSRA = (1<<ADEN)|(1<<ADSC)|(1<<ADATE)|(0<<ADIF)|(1<<ADIE)|(1<<ADPS2)|(0<<ADPS1)|(0<<ADPS0)
 
 #define adcOff()       ADCSRA = 0b00000000; LOW_POWER
 // ADCSRA = (0<<ADEN)|(0<<ADSC)|(0<<ADATE)|(0<<ADIF)|(0<<ADIE)|(0<<ADPS2)|(0<<ADPS1)|(0<<ADPS0)
