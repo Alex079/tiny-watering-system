@@ -14,8 +14,8 @@ volatile bool calibrationRequired; // calibration indicator
 #define OUT_PROBE      (1 << PB0)
 #define OUT_PUMP       (1 << PB1)
 #define IN_BUTTON      (1 << PB2)
-#define IN_PROBE_L     (1 << PB3)
-#define IN_PROBE_H     (1 << PB4)
+#define UNUSED         (1 << PB3)
+#define IN_PROBE       (1 << PB4)
 
 #define probeOn()      PORTB |=  OUT_PROBE
 #define probeOff()     PORTB &= ~OUT_PROBE
@@ -48,31 +48,30 @@ volatile bool calibrationRequired; // calibration indicator
 
 #define MAX_FAILURES   2
 
-#define LOW_POWER      PRR = 0b1111
 // PRR = (1<<PRTIM1)|(1<<PRTIM0)|(1<<PRUSI)|(1<<PRADC)
+#define LOW_POWER      PRR = 0b1111
 
-#define ADC_POWER      PRR = 0b1110
 // PRR = (1<<PRTIM1)|(1<<PRTIM0)|(1<<PRUSI)|(0<<PRADC)
+#define ADC_POWER      PRR = 0b1110
 
-#define adcSetup()     ADMUX = 0b10110110; LOW_POWER
-// ADMUX = (1<<REFS1)|(0<<REFS0)|(1<<ADLAR)|(1<<REFS2)|(0<<MUX3)|(1<<MUX2)|(1<<MUX1)|(0<<MUX0)
+// ADMUX = (1<<REFS1)|(0<<REFS0)|(1<<ADLAR)|(1<<REFS2)|(0<<MUX3)|(0<<MUX2)|(1<<MUX1)|(0<<MUX0)
+#define adcSetup()     ADMUX = 0b10110010; LOW_POWER
 
-#define adcOn()        ADC_POWER; ADCSRA = 0b11101100
 // ADCSRA = (1<<ADEN)|(1<<ADSC)|(1<<ADATE)|(0<<ADIF)|(1<<ADIE)|(1<<ADPS2)|(0<<ADPS1)|(0<<ADPS0)
+#define adcOn()        ADC_POWER; ADCSRA = 0b11101100
 
-#define adcOff()       ADCSRA = 0b00000000; LOW_POWER
 // ADCSRA = (0<<ADEN)|(0<<ADSC)|(0<<ADATE)|(0<<ADIF)|(0<<ADIE)|(0<<ADPS2)|(0<<ADPS1)|(0<<ADPS0)
+#define adcOff()       ADCSRA = 0b00000000; LOW_POWER
 
-#define watchdogArm(p) WDTCR = 0b01000000 | (((p) & 0b1000) << 2) | ((p) & 0b0111)
 // WDTCR = (0<<WDIF)(1<<WDIE)|(0<<WDCE)|(0<<WDE)|<WDP[3:0]>
+#define watchdogArm(p) WDTCR = 0b01000000 | (((p) & 0b1000) << 2) | ((p) & 0b0111)
 
 #define sleep(mode)    set_sleep_mode(mode); sleep_mode()
 
 void prepare() {
   adcSetup();
-  DIDR0 |= OUT_PUMP | OUT_PROBE | IN_PROBE_L | IN_PROBE_H; // no digital buffer
+  DIDR0 |= OUT_PUMP | OUT_PROBE | UNUSED | IN_PROBE; // no digital buffer
   DDRB  |= OUT_PUMP | OUT_PROBE;  // enable outputs
-  //PORTB |= IN_BUTTON; // internal pull-up
   GIMSK |= (1 << INT0); // enable button interrupt
   sei();
 }
