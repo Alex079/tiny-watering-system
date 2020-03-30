@@ -1,3 +1,5 @@
+![AVR build](https://github.com/Alex079/watsy/workflows/AVR%20build/badge.svg)
+
 # Watering System
 
 This is a simple **wat**ering **sy**stem based on ATTinyX5 MCU.
