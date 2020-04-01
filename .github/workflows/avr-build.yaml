@@ -11,7 +11,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: Alex079/setup-custom-tool@master
+    - uses: Alex079/setup-custom-tool@v1
       with:
         archiveUrl: 'https://blog.zakkemble.net/download/avr-gcc-9.2.0-x64-mingw.zip'
         archiveGlob: '*/bin'
