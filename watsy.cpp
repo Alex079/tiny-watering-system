@@ -10,7 +10,7 @@ FUSES = {
   .extended = 0xFF
 };
 
-volatile uint8_t  samplesCount; // samples count in one measurement
+volatile uint8_t  samplesNeeded; // samples count in one measurement
 volatile uint16_t samplesSum;   // sum of all the sampled values in one measurement
 
 uint8_t prevValue; // previously measured value
@@ -20,7 +20,7 @@ uint8_t goalValue; // measured value should be kept below goal value
 uint8_t failuresCount; // positive when pumping does not help to reach the goal
 
 volatile uint8_t waiting;
-volatile bool setupIsOngoing;
+volatile bool loopMode = true;
 bool goalResetIsNeeded;
 
 uint8_t pumpTimes;
@@ -36,7 +36,7 @@ uint8_t pumpTimes;
 #define pumpOn()       PORTB |=  OUT_PUMP
 #define pumpOff()      PORTB &= ~OUT_PUMP
 
-#define ADC_SAMPLES    10
+#define ADC_SAMPLES    8
 
 #define SENSOR_TIMES   1
 // #define PUMP_TIMES     1
@@ -94,24 +94,24 @@ void boot() {
 }
 
 void init() {
-  while (!setupIsOngoing) { // wait for setup to begin
+  while (loopMode) { // wait for setup to begin
     sleep(SLEEP_MODE_PWR_DOWN);
   }
   pumpOn();
   waiting = MAX_WAITING;
-  while (setupIsOngoing && waiting) { // wait for setup to end
+  while (!loopMode && waiting) { // wait for setup to end
     watchdogArm(SHORT_TIMEOUT);
     sleep(SLEEP_MODE_PWR_DOWN);
   }
   pumpOff();
   pumpTimes = MAX_WAITING - waiting;
-  setupIsOngoing = false;
+  loopMode = true;
   goalResetIsNeeded = true; // ask to reset the goal at next measurement
 }
 
 bool measure() {
   samplesSum = 0;
-  samplesCount = 0;
+  samplesNeeded = ADC_SAMPLES;
   sensorOn();
   waiting = SENSOR_TIMES;
   while (waiting) { // wait for sensor to stabilize
@@ -119,18 +119,18 @@ bool measure() {
     sleep(SLEEP_MODE_PWR_DOWN);
   }
   adcOn();
-  while (samplesCount < ADC_SAMPLES) { // accumulate samples
+  while (samplesNeeded) { // accumulate samples
     sleep(SLEEP_MODE_ADC);
   }
   adcOff();
   sensorOff();
   prevValue = currValue;
-  currValue = samplesSum / samplesCount;
+  currValue = samplesSum / ADC_SAMPLES;
   if (goalResetIsNeeded) { // reset the goal
     goalValue = currValue;
     goalResetIsNeeded = false;
   }
-  return !setupIsOngoing; // break the main loop if a new setup has started during measurement
+  return loopMode; // break the main loop if a new setup has started during measurement
 }
 
 bool pump() {
@@ -147,7 +147,7 @@ bool pump() {
     }
     pumpOn();
     waiting = pumpTimes;
-    while (!setupIsOngoing && waiting) { // pumping
+    while (loopMode && waiting) { // pumping
       watchdogArm(SHORT_TIMEOUT);
       sleep(SLEEP_MODE_PWR_DOWN);
     }
@@ -155,16 +155,16 @@ bool pump() {
   } else {
     failuresCount = 0;
   }
-  return !setupIsOngoing; // break the main loop if a setup has started during pumping
+  return loopMode; // break the main loop if a setup has started during pumping
 }
 
 bool idle() {
   waiting = IDLE_TIMES;
-  while (!setupIsOngoing && waiting) {
+  while (loopMode && waiting) {
     watchdogArm(LONG_TIMEOUT);
     sleep(SLEEP_MODE_PWR_DOWN);
   }
-  return !setupIsOngoing; // break the main loop if a setup has started during idle time
+  return loopMode; // break the main loop if a setup has started during idle time
 }
 
 //////////////////////////////////////////////////
@@ -188,9 +188,9 @@ ISR(WDT_vect) {
 
 ISR(ADC_vect) {
   samplesSum += ADCH;
-  samplesCount++;
+  samplesNeeded--;
 }
 
 ISR(PCINT0_vect) {
-  setupIsOngoing = !(PINB & IN_BUTTON);
+  loopMode = (PINB & IN_BUTTON);
 }
