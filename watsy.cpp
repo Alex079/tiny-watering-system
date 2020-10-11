@@ -23,7 +23,7 @@ volatile uint8_t waiting;
 volatile bool loopMode = true;
 bool goalResetIsNeeded;
 
-uint8_t pumpTimes;
+uint8_t pumpTime;
 
 #define OUT_SENSOR     (1 << PB0)
 #define OUT_PUMP       (1 << PB1)
@@ -38,9 +38,9 @@ uint8_t pumpTimes;
 
 #define ADC_SAMPLES    8
 
-#define SENSOR_TIMES   1
+#define SENSOR_TIME   1
 // #define PUMP_TIMES     1
-#define IDLE_TIMES     8
+#define IDLE_TIME     8
 
 /*
  * timeout values
@@ -61,7 +61,9 @@ uint8_t pumpTimes;
 #define LONG_TIMEOUT   9
 
 #define MAX_FAILURES   2
-#define MAX_WAITING   80
+
+#define MIN_PUMP_TIME   20
+#define MAX_PUMP_TIME   80
 
 // PRR = (1<<PRTIM1)|(1<<PRTIM0)|(1<<PRUSI)|(1<<PRADC)
 #define LOW_POWER      PRR = 0b1111
@@ -98,13 +100,14 @@ void init() {
     sleep(SLEEP_MODE_PWR_DOWN);
   }
   pumpOn();
-  waiting = MAX_WAITING;
+  waiting = MAX_PUMP_TIME;
   while (!loopMode && waiting) { // wait for setup to end
     watchdogArm(SHORT_TIMEOUT);
     sleep(SLEEP_MODE_PWR_DOWN);
   }
   pumpOff();
-  pumpTimes = MAX_WAITING - waiting;
+  uint8_t buttonPressTime = MAX_PUMP_TIME - waiting;
+  pumpTime = (buttonPressTime < MIN_PUMP_TIME) ? MIN_PUMP_TIME : buttonPressTime;
   loopMode = true;
   goalResetIsNeeded = true; // ask to reset the goal at next measurement
 }
@@ -113,7 +116,7 @@ bool measure() {
   samplesSum = 0;
   samplesNeeded = ADC_SAMPLES;
   sensorOn();
-  waiting = SENSOR_TIMES;
+  waiting = SENSOR_TIME;
   while (waiting) { // wait for sensor to stabilize
     watchdogArm(SHORT_TIMEOUT);
     sleep(SLEEP_MODE_PWR_DOWN);
@@ -146,7 +149,7 @@ bool pump() {
       failuresCount = 0;
     }
     pumpOn();
-    waiting = pumpTimes;
+    waiting = pumpTime;
     while (loopMode && waiting) { // pumping
       watchdogArm(SHORT_TIMEOUT);
       sleep(SLEEP_MODE_PWR_DOWN);
@@ -159,7 +162,7 @@ bool pump() {
 }
 
 bool idle() {
-  waiting = IDLE_TIMES;
+  waiting = IDLE_TIME;
   while (loopMode && waiting) {
     watchdogArm(LONG_TIMEOUT);
     sleep(SLEEP_MODE_PWR_DOWN);
