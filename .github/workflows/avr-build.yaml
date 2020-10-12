@@ -21,7 +21,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Deploy avr-gcc
-      uses: Alex079/setup-custom-tool@v1
+      uses: Alex079/setup-custom-tool@master
       with:
         archiveUrl: ${{matrix.data.url}}
         archiveGlob: '*/bin'
