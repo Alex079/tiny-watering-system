@@ -8,14 +8,22 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        data:
+          - os: windows-latest
+            url: https://blog.zakkemble.net/download/avr-gcc-10.1.0-x64-windows.zip
+          - os: ubuntu-latest
+            url: https://blog.zakkemble.net/download/avr-gcc-10.1.0-x64-linux.tar.bz2
+    name: Build on ${{matrix.data.os}}
+    runs-on: ${{matrix.data.os}}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Deploy avr-gcc
       uses: Alex079/setup-custom-tool@v1
       with:
-        archiveUrl: 'https://blog.zakkemble.net/download/avr-gcc-10.1.0-x64-windows.zip'
+        archiveUrl: ${{matrix.data.url}}
         archiveGlob: '*/bin'
     - name: Build
       run: make -f .github/workflows/Makefile
