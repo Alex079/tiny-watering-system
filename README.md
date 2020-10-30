@@ -6,7 +6,7 @@ This is a simple watering system based on ATTinyX5 MCU.
 
 The components are
 
-- [Control board](https://easyeda.com/Alex079/tiny-watering-system-v2 "Schematic and PCB")
+- [Control board](https://easyeda.com/Alex079/tiny-watering-system "Schematic and PCB")
 - 3V-6V powered DC motor water pump with flyback diode
 - 3V-5V powered capacitive soil moisture sensor with 3V output
 - Normally open momentary switch (SPST NO)
