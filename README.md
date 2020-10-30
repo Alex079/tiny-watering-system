@@ -1,12 +1,12 @@
-![AVR build](https://github.com/Alex079/watsy/workflows/AVR%20build/badge.svg)
+![AVR build](https://github.com/Alex079/tiny-watering-system/workflows/AVR%20build/badge.svg)
 
 # Watering System
 
-This is a simple **wat**ering **sy**stem based on ATTinyX5 MCU.
+This is a simple watering system based on ATTinyX5 MCU.
 
 The components are
 
-- [Control board](https://easyeda.com/Alex079/watsy-v2 "Schematic and PCB")
+- [Control board](https://easyeda.com/Alex079/tiny-watering-system-v2 "Schematic and PCB")
 - 3V-6V powered DC motor water pump with flyback diode
 - 3V-5V powered capacitive soil moisture sensor with 3V output
 - Normally open momentary switch (SPST NO)
