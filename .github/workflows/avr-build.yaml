@@ -12,16 +12,16 @@ jobs:
       matrix:
         data:
           - os: windows-latest
-            url: https://blog.zakkemble.net/download/avr-gcc-10.1.0-x64-windows.zip
+            url: https://github.com/ZakKemble/avr-gcc-build/releases/download/v12.1.0-1/avr-gcc-12.1.0-x64-windows.zip
           - os: ubuntu-latest
-            url: https://blog.zakkemble.net/download/avr-gcc-10.1.0-x64-linux.tar.bz2
+            url: https://github.com/ZakKemble/avr-gcc-build/releases/download/v12.1.0-1/avr-gcc-12.1.0-x64-linux.tar.bz2
     name: Build on ${{matrix.data.os}}
     runs-on: ${{matrix.data.os}}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Deploy avr-gcc
-      uses: Alex079/setup-custom-tool@v1
+      uses: Alex079/setup-custom-tool@master
       with:
         archiveUrl: ${{matrix.data.url}}
         archiveGlob: '*/bin'
